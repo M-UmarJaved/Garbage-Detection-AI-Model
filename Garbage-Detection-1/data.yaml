@@ -1,0 +1,13 @@
+names:
+- bottle
+- paper
+nc: 2
+roboflow:
+  license: CC BY 4.0
+  project: garbage-detection-n7huv
+  url: https://universe.roboflow.com/bear-logic-s-workspace/garbage-detection-n7huv/dataset/1
+  version: 1
+  workspace: bear-logic-s-workspace
+test: test/images
+train: train/images
+val: valid/images
