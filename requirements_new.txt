@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────
+# NEW DEPENDENCIES — Garbage Detection Feature Extension
+# Install with:  pip install -r requirements_new.txt
+# ─────────────────────────────────────────────────────────────
+
+# Live dashboard
+streamlit>=1.35.0
+
+# Bin fill HTTP server
+flask>=3.0.0
+
+# Offline voice feedback
+pyttsx3>=2.90
+
+# PDF report generation
+fpdf2>=2.7.9
+
+# Charts inside PDF
+matplotlib>=3.8.0
+
+# Data manipulation (used in dashboard)
+pandas>=2.2.0
+
+# Plotly for rich interactive charts in Streamlit
+plotly>=5.22.0
