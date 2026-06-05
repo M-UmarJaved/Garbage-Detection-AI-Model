@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Creative Mode — Deck Template</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="deck-stage.js"></script>
+<style>
+  :root{
+    --cream:#EFE9D9;
+    --cream-2:#E4DCC4;
+    --green:#1F8A4C;
+    --green-dark:#136636;
+    --pink:#F06CA8;
+    --pink-dark:#D14E8B;
+    --orange:#E85A1F;
+    --yellow:#F5C518;
+    --ink:#0F0F0F;
+    --ink-2:#2A2A2A;
+    --rule:#0F0F0F;
+  }
+  html, body { margin:0; padding:0; background:#000; }
+  body { font-family:"Space Grotesk", system-ui, sans-serif; color:var(--ink); }
+
+  deck-stage > section{
+    width:1920px; height:1080px;
+    background:var(--cream);
+    color:var(--ink);
+    position:relative;
+    overflow:hidden;
+    box-sizing:border-box;
+    opacity:0;
+    transform: translateY(18px) scale(0.996);
+    transition: opacity 520ms ease, transform 680ms cubic-bezier(.2,.8,.2,1);
+  }
+  deck-stage > section[data-deck-active]{
+    opacity:1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* shared */
+  .display { font-family:"Archivo Black", sans-serif; letter-spacing:-.01em; line-height:.92; text-transform:uppercase; }
+  .mono { font-family:"JetBrains Mono", monospace; }
+  .body { font-family:"Space Grotesk", sans-serif; }
+
+  /* Prominent body text used for key explanatory paragraphs */
+  .prominent{
+    font-size:34px; /* slightly larger for emphasis */
+    font-weight:600;
+    color:var(--ink);
+    line-height:1.55;
+    letter-spacing:0.01em;
+  }
+
+  .slide-meta{
+    position:absolute; left:64px; right:64px; bottom:40px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:"JetBrains Mono", monospace; font-size:24px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink);
+    opacity:0; transform: translateY(10px);
+  }
+  .slide-meta .dot{ width:10px; height:10px; background:var(--ink); border-radius:50%; display:inline-block; margin:0 14px; transform:translateY(-2px); }
+
+  .topbar{
+    position:absolute; left:64px; right:64px; top:48px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:"JetBrains Mono", monospace; font-size:24px; letter-spacing:.08em; text-transform:uppercase;
+    opacity:0; transform: translateY(-10px);
+  }
+    deck-stage > section[data-deck-active] .topbar,
+    deck-stage > section[data-deck-active] .slide-meta{
+      opacity:1; transform: translateY(0);
+      transition: opacity 420ms ease, transform 520ms cubic-bezier(.2,.8,.2,1);
+    }
+    deck-stage > section[data-deck-active] .slide-meta{ transition-delay: 120ms; }
+
+    deck-stage > section[data-deck-active] .display,
+    deck-stage > section[data-deck-active] .body,
+    deck-stage > section[data-deck-active] .marker,
+    deck-stage > section[data-deck-active] .grid,
+    deck-stage > section[data-deck-active] .dataset-grid,
+    deck-stage > section[data-deck-active] .anno-grid,
+    deck-stage > section[data-deck-active] .image-wrap,
+    deck-stage > section[data-deck-active] .image-row,
+    deck-stage > section[data-deck-active] .flow,
+    deck-stage > section[data-deck-active] .table,
+    deck-stage > section[data-deck-active] .iso,
+    deck-stage > section[data-deck-active] .poster{
+      opacity:0;
+      animation: riseIn 640ms cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    deck-stage > section[data-deck-active] .body{ animation-delay: 140ms; }
+    deck-stage > section[data-deck-active] .marker{ animation-delay: 220ms; }
+    deck-stage > section[data-deck-active] .grid,
+    deck-stage > section[data-deck-active] .dataset-grid,
+    deck-stage > section[data-deck-active] .anno-grid,
+    deck-stage > section[data-deck-active] .image-wrap,
+    deck-stage > section[data-deck-active] .image-row,
+    deck-stage > section[data-deck-active] .flow,
+    deck-stage > section[data-deck-active] .table,
+    deck-stage > section[data-deck-active] .iso,
+    deck-stage > section[data-deck-active] .poster{ animation-delay: 320ms; }
+
+    @keyframes riseIn{
+      from{ opacity:0; transform: translateY(22px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+  .topbar .pill{
+    border:2px solid var(--ink); padding:6px 14px; border-radius:999px;
+  }
+
+  /* --- SLIDE 1: TITLE / POSTER --- */
+  .s1 .title{
+    position:absolute; left:76px; top:40%; transform:translateY(-50%);
+    font-size:132px; color:var(--ink); width:900px;
+    z-index:3;
+  }
+  .s1 .title .row{ display:block; }
+  .s1 .poster{
+    position:absolute; right:96px; top:140px; bottom:140px;
+    width:760px;
+    background:var(--green);
+    border:4px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    z-index:1;
+  }
+  .s1 .poster .team-stack{
+    width:560px; display:flex; flex-direction:column; gap:28px;
+  }
+  .s1 .poster .team-card{
+    border:4px solid var(--ink); background:var(--pink);
+    padding:24px 28px; font-family:"Archivo Black"; font-size:28px; text-transform:uppercase;
+    color:var(--ink); box-shadow: 18px 18px 0 var(--orange), 18px 18px 0 4px var(--ink);
+  }
+  .s1 .poster .team-card.alt{ background:var(--yellow); }
+  .s1 .tagline{
+    position:absolute; left:96px; top:160px;
+    font-family:"JetBrains Mono", monospace; font-size:24px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink);
+    z-index:3;
+  }
+  .s1 .tagline span{ display:inline-block; width:60px; height:3px; background:var(--ink); vertical-align:middle; margin-right:18px; transform:translateY(-3px);}
+  .s1 .footnote{
+    position:absolute; left:96px; bottom:200px;
+    font-family:"Space Grotesk", sans-serif; font-size:22px; color:var(--ink-2); max-width:520px; line-height:1.4;
+    z-index:3;
+  }
+
+  /* --- SLIDE 2: SECTION INTRO / TWO COL --- */
+  .s2 .kicker{
+    position:absolute; left:96px; top:200px;
+    font-family:"JetBrains Mono", monospace; font-size:24px; letter-spacing:.14em; text-transform:uppercase;
+    background:var(--ink); color:var(--cream); padding:8px 16px; display:inline-block; white-space:nowrap;
+  }
+  .s2 .h{
+    position:absolute; left:96px; top:300px; right:1000px;
+    font-size:140px; line-height:.92; color:var(--ink);
+  }
+  .s2 .body-col{
+    position:absolute; left:1020px; top:300px; right:480px;
+    font-size:28px; line-height:1.4; color:var(--ink-2);
+  }
+  .s2 .body-col p + p { margin-top:24px; }
+  .s2 .body-col p:first-child{ margin-top:0; }
+  .s2 .marker{
+    position:absolute; left:96px; bottom:160px;
+    width:560px; height:120px; background:var(--pink); border:4px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Archivo Black"; font-size:46px;
+  }
+  .s2 .marker:after{
+    content:""; position:absolute; right:-24px; bottom:-24px; width:100%; height:100%;
+    background:var(--orange); border:4px solid var(--ink); z-index:-1;
+  }
+  .s2 .ix{
+    position:absolute; right:96px; top:300px;
+    width:340px; height:340px; background:var(--green); border:4px solid var(--ink);
+  }
+  .s2 .ix .circ{
+    position:absolute; left:50%; top:50%; width:180px; height:180px;
+    background:var(--yellow); border:4px solid var(--ink); border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+
+  /* --- SLIDE 3: STAT GRID 2x2 --- */
+  .s3 .h{
+    position:absolute; left:96px; top:130px; right:96px;
+    font-size:72px; line-height:.95; color:var(--ink);
+  }
+  .s3 .grid{
+    position:absolute; left:96px; right:96px; top:380px;
+    display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+    gap:28px; bottom:110px;
+  }
+  .s3 .cell{
+    border:4px solid var(--ink); padding:28px 32px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .s3 .cell .num-wrap{ padding-top:32px; }
+  .s3 .cell .num{ font-family:"Archivo Black"; font-size:96px; line-height:.9; }
+  .s3 .cell .lbl{ font-family:"JetBrains Mono", monospace; font-size:24px; letter-spacing:.12em; text-transform:uppercase; }
+  .s3 .cell .desc{ font-size:24px; line-height:1.3; max-width:520px; color:var(--ink-2); margin-top:6px;}
+  .s3 .c1{ background:var(--green); color:var(--cream); }
+  .s3 .c1 .desc{ color:var(--cream); }
+  .s3 .c2{ background:var(--pink); }
+  .s3 .c3{ background:var(--cream); }
+  .s3 .c4{ background:var(--orange); color:var(--cream);}
+  .s3 .c4 .desc{ color:var(--cream); }
+  .s3 .cell .corner{ position:absolute; top:24px; right:28px; font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.1em; }
+
+  /* --- SLIDE 4: ISOMETRIC DIAGRAM --- */
+  .s4 .h{
+    position:absolute; left:96px; top:96px; right:900px; font-size:100px; color:var(--ink);
+  }
+  .s4 .sub{
+    position:absolute; left:96px; top:460px; right:1000px;
+    font-size:24px; line-height:1.45; color:var(--ink-2);
+  }
+  .s4 .legend{
+    position:absolute; left:96px; bottom:140px; display:flex; flex-direction:column; gap:18px;
+  }
+  .s4 .legend .row{ display:flex; align-items:center; gap:16px; font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.06em; text-transform:uppercase; }
+  .s4 .legend .sw{ width:28px; height:28px; border:3px solid var(--ink); }
+  .s4 .iso{
+    position:absolute; right:80px; top:120px; width:920px; height:840px;
+    background:var(--green); border:4px solid var(--ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .s4 .stack{ position:relative; width:560px; height:560px; }
+  .s4 .blk{
+    position:absolute; width:300px; height:120px; border:4px solid var(--ink);
+    box-shadow: 18px 18px 0 var(--ink);
+  }
+  .s4 .b1{ background:var(--pink); top:60px; left:130px; }
+  .s4 .b2{ background:var(--yellow); top:200px; left:60px; width:380px; }
+  .s4 .b3{ background:var(--orange); top:340px; left:160px; }
+  .s4 .b4{ background:var(--cream); top:460px; left:80px; width:340px; }
+  .s4 .blk .tag{ position:absolute; left:14px; top:10px; font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.1em; text-transform:uppercase;}
+
+  /* --- SLIDE 5: DATASET GRID --- */
+  .s4b .h{
+    position:absolute; left:96px; top:70px; right:96px; font-size:64px; color:var(--ink);
+  }
+  .s4b .sub{
+    position:absolute; left:96px; top:230px; right:96px;
+    font-size:22px; line-height:1.35; color:var(--ink-2); max-width:1200px;
+  }
+  .s4b .dataset-grid{
+    position:absolute; left:96px; right:96px; top:300px; bottom:120px;
+    display:grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(4, 1fr);
+    gap:12px; border:4px solid var(--ink); background:var(--cream-2); padding:14px; box-sizing:border-box;
+  }
+  .s4b .cell{
+    border:3px solid var(--ink); background:var(--cream);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .s4b .cell img{ width:100%; height:100%; object-fit:cover; }
+
+  /* --- SLIDE 6: ROBOFLOW ANNOTATIONS --- */
+  .s4c .h{
+    position:absolute; left:96px; top:84px; right:96px; font-size:72px; color:var(--ink);
+  }
+  .s4c .sub{
+    position:absolute; left:96px; top:190px; right:96px;
+    font-size:24px; line-height:1.4; color:var(--ink-2);
+  }
+  .s4c .anno-grid{
+    position:absolute; left:96px; right:96px; top:280px; bottom:120px;
+    display:grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 1fr);
+    gap:18px; border:4px solid var(--ink); background:var(--cream-2); padding:18px; box-sizing:border-box;
+  }
+  .s4c .cell{
+    border:3px solid var(--ink); background:var(--cream);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .s4c .cell img{ width:100%; height:100%; object-fit:contain; }
+
+  /* --- SLIDE 5: BAR CHART --- */
+  .s5 .h{
+    position:absolute; left:96px; top:96px; right:700px; font-size:72px; color:var(--ink);
+  }
+  .s5 .axis-y{
+    position:absolute; left:96px; top:380px; width:64px; height:520px;
+    border-right:3px solid var(--ink);
+    display:flex; flex-direction:column-reverse; justify-content:space-between;
+    font-family:"JetBrains Mono"; font-size:24px;
+  }
+  .s5 .axis-y span{ transform:translate(-12px, 6px); text-align:right; width:60px; }
+  .s5 .chart{
+    position:absolute; left:160px; right:96px; top:380px; height:520px;
+    border-bottom:3px solid var(--ink);
+    display:flex; align-items:flex-end; justify-content:space-around; gap:36px;
+    padding:0 40px 0 40px; box-sizing:border-box;
+  }
+  .s5 .bar{
+    flex:1; border:3px solid var(--ink); position:relative; max-width:160px;
+  }
+  .s5 .bar .v{
+    position:absolute; left:0; right:0; top:-44px; text-align:center;
+    font-family:"Archivo Black"; font-size:30px;
+  }
+  .s5 .bar .x{
+    position:absolute; left:0; right:0; bottom:-50px; text-align:center;
+    font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.1em; text-transform:uppercase;
+  }
+  .s5 .legend2{
+    position:absolute; right:96px; top:130px; display:flex; flex-direction:column; gap:14px;
+    font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.08em; text-transform:uppercase;
+  }
+  .s5 .legend2 .row{ display:flex; align-items:center; gap:10px; }
+  .s5 .legend2 .sw{ width:22px; height:22px; border:3px solid var(--ink); }
+  .s5 .note{
+    position:absolute; left:160px; right:600px; bottom:90px;
+    font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.06em; color:var(--ink-2);
+  }
+
+  /* Overrides for merged training slide to avoid heading/legend overlap */
+  .s5b .h{
+    position:absolute; left:96px; top:48px; right:700px; font-size:64px; color:var(--ink);
+    z-index:6; background:transparent; padding-right:20px;
+  }
+  .s5b .legend2{
+    position:absolute; right:96px; top:88px; display:flex; flex-direction:column; gap:8px;
+    font-family:"JetBrains Mono"; font-size:16px; letter-spacing:.08em; text-transform:uppercase; z-index:6;
+  }
+  .s5b .image-wrap{
+    position:absolute; left:160px; right:160px; top:200px; bottom:160px;
+    border:4px solid var(--ink); background:var(--cream-2); display:flex; align-items:center; justify-content:center; padding:24px;
+    z-index:1;
+  }
+  .s5b .note{
+    position:absolute; left:160px; right:160px; top:540px; font-family:"JetBrains Mono"; font-size:20px; color:var(--ink-2);
+  }
+  .s5 .chart-image{
+    position:absolute; left:160px; right:96px; top:300px; bottom:160px;
+    border:4px solid var(--ink); background:var(--cream-2);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .s5 .chart-image img{ width:100%; height:100%; object-fit:contain; }
+
+  /* --- SLIDE 6: IMAGE ONLY (TRAINING STATS) --- */
+  .s5b .image-wrap{
+    position:absolute; left:96px; right:96px; top:160px; bottom:120px;
+    border:4px solid var(--ink); background:var(--cream-2);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .s5b .image-wrap img{ width:100%; height:100%; object-fit:contain; }
+
+  /* --- SLIDE 7: IMAGE ONLY (LOSS CURVES) --- */
+  .s5c .image-wrap{
+    position:absolute; left:96px; right:96px; top:160px; bottom:120px;
+    border:4px solid var(--ink); background:var(--cream-2);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .s5c .image-wrap img{ width:100%; height:100%; object-fit:contain; }
+
+  /* --- SLIDE 8: THREE IMAGES HORIZONTAL --- */
+  .s5d .image-row{
+    position:absolute; left:96px; right:96px; top:160px; bottom:120px;
+    border:4px solid var(--ink); background:var(--cream-2);
+    display:flex; gap:28px; padding:24px; box-sizing:border-box;
+  }
+  .s5d .image-cell{
+    flex:1; border:3px solid var(--ink); background:var(--cream);
+    display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+  .s5d .image-cell img{ width:100%; height:100%; object-fit:contain; }
+
+  /* --- SLIDE 6: PROCESS / FLOW --- */
+  .s6 .h{
+    position:absolute; left:96px; top:96px; right:96px; font-size:96px; color:var(--ink);
+  }
+  .s6 .flow{
+    position:absolute; left:96px; right:96px; top:380px;
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:28px;
+  }
+  .s6 .step{
+    border:4px solid var(--ink); padding:28px; height:420px; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .s6 .step .n{ font-family:"Archivo Black"; font-size:140px; line-height:.85; }
+  .s6 .step .t{ font-family:"Archivo Black"; font-size:34px; margin-top:16px; line-height:1; text-transform:uppercase; }
+  .s6 .step .d{ font-size:24px; line-height:1.4; margin-top:14px; color:var(--ink-2); }
+  .s6 .step .arrow{
+    position:absolute; right:-22px; top:50%; transform:translateY(-50%);
+    width:0; height:0; border-top:18px solid transparent; border-bottom:18px solid transparent;
+    border-left:24px solid var(--ink); z-index:2;
+  }
+  .s6 .step:last-child .arrow{ display:none; }
+  .s6 .s-1{ background:var(--cream); }
+  .s6 .s-2{ background:var(--pink); }
+  .s6 .s-3{ background:var(--yellow); }
+  .s6 .s-4{ background:var(--green); color:var(--cream); }
+  .s6 .s-4 .d{ color:var(--cream); }
+  .s6 .header-line{
+    position:absolute; left:96px; right:96px; top:280px; height:0;
+    border-top:3px dashed var(--ink);
+  }
+
+  /* --- SLIDE 7: COMPARISON TABLE --- */
+  .s7 .h{
+    position:absolute; left:96px; top:130px; right:500px; font-size:84px; color:var(--ink);
+  }
+  .s7 .table{
+    position:absolute; left:96px; right:96px; top:380px; bottom:140px;
+    border:4px solid var(--ink);
+    display:grid; grid-template-rows: 110px repeat(4, 1fr);
+    background:var(--cream-2);
+  }
+  .s7 .table .row{
+    display:grid; grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    border-bottom:3px solid var(--ink);
+  }
+  .s7 .table .row:last-child{ border-bottom:0; }
+  .s7 .table .row > div{
+    padding:18px 26px; border-right:3px solid var(--ink); display:flex; align-items:center;
+    font-size:24px;
+  }
+  .s7 .table .row > div:last-child{ border-right:0; }
+  .s7 .table .head{ background:var(--ink); color:var(--cream); }
+  .s7 .table .head > div{
+    font-family:"Archivo Black"; font-size:28px; text-transform:uppercase;
+    border-right:3px solid var(--cream);
+  }
+  .s7 .table .row .label{ font-family:"Archivo Black"; font-size:28px; text-transform:uppercase; background:var(--cream);}
+  .s7 .table .row .col-pink{ background:var(--pink); }
+  .s7 .table .row .col-green{ background:var(--green); color:var(--cream); }
+  .s7 .table .row .col-orange{ background:var(--orange); color:var(--cream); }
+  .s7 .badge{
+    position:absolute; right:120px; top:240px;
+    background:var(--yellow); border:4px solid var(--ink);
+    padding:14px 22px; font-family:"Archivo Black"; font-size:28px; text-transform:uppercase;
+    transform:rotate(-4deg);
+  }
+
+  /* --- SLIDE 8: CLOSING / BIG MARK --- */
+  .s8{ background:var(--green) !important; color:var(--cream); }
+  .s8 .topbar, .s8 .slide-meta{ color:var(--cream); }
+  .s8 .topbar .pill{ border-color:var(--cream); }
+  .s8 .slide-meta .dot{ background:var(--cream); }
+  .s8 .h{
+    position:absolute; left:96px; top:200px; right:700px;
+    font-size:220px; color:var(--cream);
+  }
+  .s8 .strap{
+    position:absolute; left:96px; top:740px; right:600px;
+    font-size:32px; line-height:1.4;
+  }
+  .s8 .stamp{
+    position:absolute; right:120px; bottom:160px;
+    width:340px; height:340px; background:var(--pink);
+    border:4px solid var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    transform:rotate(-6deg);
+  }
+  .s8 .stamp .inner{
+    width:280px; height:280px; border:4px solid var(--cream); border-radius:50%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:20px; box-sizing:border-box;
+  }
+  .s8 .stamp .num{ font-family:"Archivo Black"; font-size:64px; line-height:.9; margin-bottom:10px; }
+  .s8 .stamp .lbl{ font-family:"JetBrains Mono"; font-size:24px; letter-spacing:.12em; text-transform:uppercase; margin-top:6px;}
+
+</style>
+</head>
+<body>
+
+<deck-stage>
+
+  <!-- ============ 1: TITLE / POSTER ============ -->
+  <section class="s1" data-screen-label="01 Title">
+    <div class="tagline">
+      <span></span>VOL.&nbsp;01 &nbsp;/&nbsp; AI&nbsp;PROJECT&nbsp;2026
+    </div>
+
+    <div class="title display">
+      <span class="row">SMART WASTE</span>
+      <span class="row" style="color:var(--orange); font-size:112px;">SEGREGATION</span>
+    </div>
+
+    <div class="footnote">
+      AI-powered smart waste segregation and monitoring system using YOLO and ESP32-CAM.
+    </div>
+
+    <div class="poster" aria-hidden="true">
+      <div class="team-stack">
+        <div class="team-card">Muhammad Umar Javed — 2024-CS-190</div>
+        <div class="team-card alt">Muhammad Husnain — 2024-CS-221</div>
+        <div class="team-card">Sunil Romi — 2024-CS-55</div>
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>AI PROJECT OVERVIEW</div>
+      <div>01<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 2: SECTION INTRO / TWO COL ============ -->
+  <section class="s2" data-screen-label="02 Intro">
+    <div class="topbar">
+      <div>SECTION 01</div>
+      <div class="pill">PROBLEM&nbsp;AND&nbsp;GOAL</div>
+    </div>
+
+    <div class="kicker mono">WHY THIS MATTERS</div>
+    <h1 class="h display">SORT WASTE<br/>IN REAL TIME.</h1>
+
+    <div class="body-col body prominent">
+      <p>Manual waste sorting is slow, inconsistent, and unsafe. Our goal is to detect and separate waste automatically using a compact vision system.</p>
+      <p>We trained a YOLO model on our custom dataset and deployed it on a live ESP32-CAM stream. The system decides movement commands in real time.</p>
+      <p>Output is monitored on a dashboard with logs and analytics for evaluation and future improvements.</p>
+    </div>
+
+    <div class="marker display">AI + IOT</div>
+    <div class="ix" aria-hidden="true"><div class="circ"></div></div>
+
+    <div class="slide-meta">
+      <div>PROBLEM&nbsp;STATEMENT</div>
+      <div>02<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 3: STAT GRID 2x2 ============ -->
+  <section class="s3" data-screen-label="03 Stats">
+    <div class="topbar">
+      <div>MODEL&nbsp;METRICS</div>
+      <div class="pill">VALIDATION&nbsp;SET</div>
+    </div>
+
+    <h1 class="h display">FOUR FIGURES,
+ONE STORY.</h1>
+
+    <div class="grid">
+      <div class="cell c1">
+        <div class="corner mono">/01</div>
+        <div class="num-wrap"><div class="num">82.1%</div></div>
+        <div>
+          <div class="lbl">mAP@50</div>
+          <div class="desc">Mean average precision on the validation set.</div>
+        </div>
+      </div>
+      <div class="cell c2">
+        <div class="corner mono">/02</div>
+        <div class="num-wrap"><div class="num">77.8%</div></div>
+        <div>
+          <div class="lbl">Precision</div>
+          <div class="desc">High precision reduces false positives.</div>
+        </div>
+      </div>
+      <div class="cell c3">
+        <div class="corner mono">/03</div>
+        <div class="num-wrap"><div class="num">85.8%</div></div>
+        <div>
+          <div class="lbl">Recall</div>
+          <div class="desc">High recall captures most true objects.</div>
+        </div>
+      </div>
+      <div class="cell c4">
+        <div class="corner mono">/04</div>
+        <div class="num-wrap"><div class="num">81.6%</div></div>
+        <div>
+          <div class="lbl">F1 Score</div>
+          <div class="desc">Balanced precision and recall for stability.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>METRICS&nbsp;OVERVIEW</div>
+      <div>03<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 4: ISOMETRIC DIAGRAM ============ -->
+  <section class="s4" data-screen-label="04 Diagram">
+    <div class="topbar">
+      <div>SYSTEM&nbsp;DIAGRAM</div>
+      <div class="pill">PIPELINE&nbsp;/&nbsp;LIVE</div>
+    </div>
+
+    <h1 class="h display">VISION TO<br/>MOTION.</h1>
+
+    <p class="sub body prominent">
+      The system captures live frames from ESP32-CAM, runs YOLO inference on the laptop, and sends motor commands to ESP32-WROOM via UDP. Logs and dashboards monitor performance.
+    </p>
+
+    <div class="legend">
+      <div class="row"><span class="sw" style="background:var(--pink)"></span> ESP32-CAM stream input</div>
+      <div class="row"><span class="sw" style="background:var(--yellow)"></span> YOLOv8 inference engine</div>
+      <div class="row"><span class="sw" style="background:var(--orange)"></span> UDP motor control</div>
+      <div class="row"><span class="sw" style="background:var(--cream-2)"></span> Dashboard and logs</div>
+    </div>
+
+    <div class="iso" aria-hidden="true">
+      <div class="stack">
+        <div class="blk b1"><span class="tag">Input / Cam</span></div>
+        <div class="blk b2"><span class="tag">AI / YOLOv8</span></div>
+        <div class="blk b3"><span class="tag">Control / UDP</span></div>
+        <div class="blk b4"><span class="tag">Monitor / DB</span></div>
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>ARCHITECTURE</div>
+      <div>04<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 5: DATASET GRID ============ -->
+  <section class="s4b" data-screen-label="05 Dataset">
+    <div class="topbar">
+      <div>DATASET&nbsp;BUILD</div>
+      <div class="pill">OUR&nbsp;OWN&nbsp;CAPTURE</div>
+    </div>
+
+    <h1 class="h display">CUSTOM DATASET,<br/>SELF‑CAPTURED.</h1>
+    <p class="sub body prominent">Our key strength: we captured and built the dataset ourselves before training.</p>
+
+    <div class="dataset-grid">
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569708.jpg" alt="Crushed paper 1" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569711.jpg" alt="Crushed paper 2" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569713.jpg" alt="Crushed paper 3" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569715.jpg" alt="Crushed paper 4" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569718.jpg" alt="Crushed paper 5" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569720.jpg" alt="Crushed paper 6" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569722.jpg" alt="Crushed paper 7" /></div>
+
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569724.jpg" alt="Crushed paper 8" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569732.jpg" alt="Crushed paper 9" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569738.jpg" alt="Crushed paper 10" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569741.jpg" alt="Crushed paper 11" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569753.jpg" alt="Crushed paper 12" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569757.jpg" alt="Crushed paper 13" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569759.jpg" alt="Crushed paper 14" /></div>
+
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569761.jpg" alt="Crushed paper 15" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569762.jpg" alt="Crushed paper 16" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569764.jpg" alt="Crushed paper 17" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569766.jpg" alt="Crushed paper 18" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569771.jpg" alt="Crushed paper 19" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569775.jpg" alt="Crushed paper 20" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569776.jpg" alt="Crushed paper 21" /></div>
+
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569778.jpg" alt="Crushed paper 22" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569781.jpg" alt="Crushed paper 23" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569786.jpg" alt="Crushed paper 24" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569787.jpg" alt="Crushed paper 25" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778569789.jpg" alt="Crushed paper 26" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778570242.jpg" alt="Crushed paper 27" /></div>
+      <div class="cell"><img src="../raw_pictures/crushedpage/image_1778570243.jpg" alt="Crushed paper 28" /></div>
+    </div>
+
+    <div class="slide-meta">
+      <div>DATASET&nbsp;CAPTURE</div>
+      <div>05<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 6: ROBOFLOW ANNOTATIONS ============ -->
+  <section class="s4c" data-screen-label="06 Annotations">
+    <div class="topbar">
+      <div>ANNOTATION</div>
+      <div class="pill">ROBOFLOW</div>
+    </div>
+
+    <h1 class="h display">LABELED BY US.</h1>
+    <p class="sub body prominent">We annotated every image ourselves to build a reliable training set.</p>
+
+    <div class="anno-grid">
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015541.png" alt="Roboflow annotation 1" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015616.png" alt="Roboflow annotation 2" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015748.png" alt="Roboflow annotation 3" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015809.png" alt="Roboflow annotation 4" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015828.png" alt="Roboflow annotation 5" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015841.png" alt="Roboflow annotation 6" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015925.png" alt="Roboflow annotation 7" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20015945.png" alt="Roboflow annotation 8" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20020016.png" alt="Roboflow annotation 9" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20021127.png" alt="Roboflow annotation 10" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20021155.png" alt="Roboflow annotation 11" /></div>
+      <div class="cell"><img src="roboimages/Screenshot%202026-06-06%20021231.png" alt="Roboflow annotation 12" /></div>
+    </div>
+
+    <div class="slide-meta">
+      <div>ANNOTATION&nbsp;WORK</div>
+      <div>06<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- BAR CHART removed — content merged into next slide -->
+
+  <!-- ============ 6: IMAGE ONLY (TRAINING STATS) ============ -->
+  <section class="s5b" data-screen-label="06 Training Stats">
+    <div class="topbar">
+      <div>TRAINING&nbsp;RESULTS</div>
+      <div class="pill">YOLO&nbsp;CURVES</div>
+    </div>
+
+    <h1 class="h display">TRAINING CURVES AND LOSS.</h1>
+
+    <div class="legend2">
+      <div class="row"><span class="sw" style="background:var(--green)"></span> mAP</div>
+      <div class="row"><span class="sw" style="background:var(--pink)"></span> Loss</div>
+      <div class="row"><span class="sw" style="background:var(--orange)"></span> PR/F1</div>
+    </div>
+
+    <div class="image-wrap">
+      <img src="Screenshot%202026-06-05%20221829.png" alt="Training stats" />
+    </div>
+
+    <div class="note mono">FIG. 01 — TRAINING RESULTS FROM YOLO RUN (23 EPOCHS).</div>
+
+    <div class="slide-meta">
+      <div>TRAINING&nbsp;STATS</div>
+      <div>08<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 7: IMAGE ONLY (LOSS CURVES) ============ -->
+  <section class="s5c" data-screen-label="07 Loss Curves">
+    <div class="topbar">
+      <div>AI&nbsp;PROJECT</div>
+      <div class="pill">LOSS&nbsp;CURVES</div>
+    </div>
+
+    <div class="image-wrap">
+      <img src="Screenshot%202026-06-05%20221900.png" alt="Loss curves" />
+    </div>
+
+    <div class="slide-meta">
+      <div>LOSS&nbsp;CURVES</div>
+      <div>09<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 8: IMAGE ROW (THREE SHOTS) ============ -->
+  <section class="s5d" data-screen-label="08 Training Screens">
+    <div class="topbar">
+      <div>AI&nbsp;PROJECT</div>
+      <div class="pill">TRAINING&nbsp;SCREENS</div>
+    </div>
+
+    <div class="image-row">
+      <div class="image-cell">
+        <img src="Screenshot%202026-06-05%20221957.png" alt="Training screen 1" />
+      </div>
+      <div class="image-cell">
+        <img src="Screenshot%202026-06-05%20222023.png" alt="Training screen 2" />
+      </div>
+      <div class="image-cell">
+        <img src="Screenshot%202026-06-05%20222123.png" alt="Training screen 3" />
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>TRAINING&nbsp;SCREENS</div>
+      <div>10<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 6: PROCESS / FLOW ============ -->
+  <section class="s6" data-screen-label="06 Process">
+    <div class="topbar">
+      <div>HOW&nbsp;IT&nbsp;WORKS</div>
+      <div class="pill">FOUR&nbsp;STEPS</div>
+    </div>
+
+    <h1 class="h display">BUILD TO DEPLOY.</h1>
+
+    <div class="header-line"></div>
+
+    <div class="flow">
+      <div class="step s-1">
+        <div class="n">01</div>
+        <div class="t">Capture</div>
+        <div class="d">Collect 300 to 400 images per class using ESP32-CAM with varied angles and lighting.</div>
+        <div class="arrow"></div>
+      </div>
+      <div class="step s-2">
+        <div class="n">02</div>
+        <div class="t">Annotate</div>
+        <div class="d">Label images in Roboflow and export the dataset in YOLO format.</div>
+        <div class="arrow"></div>
+      </div>
+      <div class="step s-3">
+        <div class="n">03</div>
+        <div class="t">Train</div>
+        <div class="d">Fine-tune YOLOv8 on the custom dataset and save the best weights.</div>
+        <div class="arrow"></div>
+      </div>
+      <div class="step s-4">
+        <div class="n">04</div>
+        <div class="t">Deploy</div>
+        <div class="d">Run real-time detection and send movement commands to the smart basket.</div>
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>METHOD&nbsp;FLOW</div>
+      <div>11<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 7: COMPARISON TABLE ============ -->
+  <section class="s7" data-screen-label="07 Compare">
+    <div class="topbar">
+      <div>FEATURES</div>
+      <div class="pill">NOW&nbsp;/&nbsp;NEXT&nbsp;/&nbsp;FUTURE</div>
+    </div>
+
+    <h1 class="h display">FEATURE ROADMAP.</h1>
+
+    <div class="badge">PICK&nbsp;ONE</div>
+
+    <div class="table">
+      <div class="row head">
+        <div>Category</div>
+        <div>Now</div>
+        <div>Next</div>
+        <div>Future</div>
+      </div>
+      <div class="row">
+        <div class="label">Detection</div>
+        <div class="col-pink">YOLOv8 (2 classes)</div>
+        <div class="col-green">Multi-class + unknown</div>
+        <div class="col-orange">Active learning loop</div>
+      </div>
+      <div class="row">
+        <div class="label">Control</div>
+        <div class="col-pink">UDP commands</div>
+        <div class="col-green">PID alignment</div>
+        <div class="col-orange">Adaptive speed</div>
+      </div>
+      <div class="row">
+        <div class="label">Monitoring</div>
+        <div class="col-pink">Local dashboard</div>
+        <div class="col-green">Bin fill sensors</div>
+        <div class="col-orange">Cloud analytics</div>
+      </div>
+      <div class="row">
+        <div class="label">Reporting</div>
+        <div class="col-pink">SQLite + CSV</div>
+        <div class="col-green">Auto PDF report</div>
+        <div class="col-orange">Email alerts</div>
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>OPTIONS&nbsp;MATRIX</div>
+      <div>12<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+  <!-- ============ 8: CLOSING / BIG MARK ============ -->
+  <section class="s8" data-screen-label="08 Closing">
+    <div class="topbar">
+      <div>END&nbsp;OF&nbsp;DECK</div>
+      <div class="pill">DEMO&nbsp;READY</div>
+    </div>
+
+    <h1 class="h display">THANK<br/>YOU.</h1>
+
+    <p class="strap body prominent">
+      Live demo: ESP32-CAM stream, YOLO detection, and smart basket motion. Questions and feedback welcome.
+    </p>
+
+    <div class="stamp" aria-hidden="true">
+      <div class="inner">
+        <div class="num">13/13</div>
+        <div class="lbl">AI Project</div>
+      </div>
+    </div>
+
+    <div class="slide-meta">
+      <div>CLOSING&nbsp;CARD</div>
+      <div>13<span class="dot"></span>13</div>
+    </div>
+  </section>
+
+</deck-stage>
+
+</body>
+</html>
