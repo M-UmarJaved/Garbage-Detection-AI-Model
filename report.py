@@ -29,17 +29,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import logger
 
 # ─────────────────────────────────────────────
-# COLOUR PALETTE  (RGB tuples)
+# COLOUR PALETTE  (RGB tuples) - CLICKUP LIGHT MODE
 # ─────────────────────────────────────────────
-C_BG        = (10,  14,  26)   # dark navy
-C_PRIMARY   = (0,   255, 136)  # neon green
-C_ACCENT    = (59,  130, 246)  # blue
-C_PURPLE    = (168, 85,  247)  # purple
-C_AMBER     = (245, 158, 11)   # amber
-C_WHITE     = (241, 245, 249)  # off-white
-C_MUTED     = (100, 116, 139)  # slate-500
-C_CARD      = (17,  24,  39)   # card bg
-C_DANGER    = (239, 68,  68)   # red
+C_BG        = (255, 255, 255)  # white
+C_PRIMARY   = (0,   200, 117)  # clickup green
+C_ACCENT    = (21,  101, 192)  # blue
+C_PURPLE    = (123, 104, 238)  # clickup purple
+C_AMBER     = (245, 166, 35)   # amber
+C_WHITE     = (42,  46,  52)   # dark grey text (kept var name for compatibility)
+C_MUTED     = (127, 133, 143)  # slate grey
+C_CARD      = (247, 248, 249)  # faint card bg
+C_DANGER    = (232, 61,  70)   # red
 
 # ─────────────────────────────────────────────
 # MATPLOTLIB CHART BUILDERS
@@ -53,11 +53,11 @@ def _mpl_bar_chart(labels, values, colors, title, ylabel, save_path):
     import numpy as np
 
     fig, ax = plt.subplots(figsize=(7, 3.5))
-    fig.patch.set_facecolor("#0a0e1a")
-    ax.set_facecolor("#111827")
+    fig.patch.set_facecolor("#ffffff")
+    ax.set_facecolor("#ffffff")
 
     bars = ax.bar(labels, values, color=colors, width=0.55,
-                  edgecolor="#1e293b", linewidth=0.8, zorder=3)
+                  edgecolor="#e2e8f0", linewidth=0.8, zorder=3)
 
     # Value labels on bars
     for bar, val in zip(bars, values):
@@ -67,18 +67,18 @@ def _mpl_bar_chart(labels, values, colors, title, ylabel, save_path):
                 bar.get_height() + max(values) * 0.02,
                 str(int(val)),
                 ha="center", va="bottom",
-                color="#f1f5f9", fontsize=9, fontweight="bold"
+                color="#2a2e34", fontsize=9, fontweight="bold"
             )
 
-    ax.set_title(title, color="#f1f5f9", fontsize=11, fontweight="bold", pad=10)
-    ax.set_ylabel(ylabel, color="#94a3b8", fontsize=9)
-    ax.tick_params(colors="#94a3b8", labelsize=8)
-    ax.spines[:].set_color("#1e293b")
-    ax.yaxis.grid(True, color="#1e293b", linewidth=0.8, zorder=0)
+    ax.set_title(title, color="#2a2e34", fontsize=11, fontweight="bold", pad=10)
+    ax.set_ylabel(ylabel, color="#7f858f", fontsize=9)
+    ax.tick_params(colors="#7f858f", labelsize=8)
+    ax.spines[:].set_color("#e2e8f0")
+    ax.yaxis.grid(True, color="#f1f5f9", linewidth=0.8, zorder=0)
     ax.set_axisbelow(True)
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches="tight",
-                facecolor="#0a0e1a", edgecolor="none")
+                facecolor="#ffffff", edgecolor="none")
     plt.close()
 
 
@@ -89,11 +89,11 @@ def _mpl_line_chart(dates, values_dict, title, ylabel, save_path):
     import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
 
-    LINE_COLORS = ["#00ff88", "#3b82f6", "#a855f7", "#f59e0b"]
+    LINE_COLORS = ["#00c875", "#1565c0", "#7b68ee", "#f5a623"]
 
     fig, ax = plt.subplots(figsize=(7, 3.2))
-    fig.patch.set_facecolor("#0a0e1a")
-    ax.set_facecolor("#111827")
+    fig.patch.set_facecolor("#ffffff")
+    ax.set_facecolor("#ffffff")
 
     for i, (label, vals) in enumerate(values_dict.items()):
         color = LINE_COLORS[i % len(LINE_COLORS)]
@@ -101,17 +101,17 @@ def _mpl_line_chart(dates, values_dict, title, ylabel, save_path):
                 marker="o", markersize=3)
         ax.fill_between(dates, vals, alpha=0.08, color=color)
 
-    ax.set_title(title, color="#f1f5f9", fontsize=11, fontweight="bold", pad=10)
-    ax.set_ylabel(ylabel, color="#94a3b8", fontsize=9)
-    ax.tick_params(colors="#94a3b8", labelsize=7)
-    ax.spines[:].set_color("#1e293b")
-    ax.yaxis.grid(True, color="#1e293b", linewidth=0.8)
+    ax.set_title(title, color="#2a2e34", fontsize=11, fontweight="bold", pad=10)
+    ax.set_ylabel(ylabel, color="#7f858f", fontsize=9)
+    ax.tick_params(colors="#7f858f", labelsize=7)
+    ax.spines[:].set_color("#e2e8f0")
+    ax.yaxis.grid(True, color="#f1f5f9", linewidth=0.8)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%d"))
-    ax.legend(fontsize=8, facecolor="#111827", edgecolor="#1e293b",
-               labelcolor="#f1f5f9")
+    ax.legend(fontsize=8, facecolor="#ffffff", edgecolor="#e2e8f0",
+               labelcolor="#2a2e34")
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches="tight",
-                facecolor="#0a0e1a", edgecolor="none")
+                facecolor="#ffffff", edgecolor="none")
     plt.close()
 
 
@@ -122,8 +122,8 @@ def _mpl_pie_chart(labels, values, colors, title, save_path):
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(4, 3.5))
-    fig.patch.set_facecolor("#0a0e1a")
-    ax.set_facecolor("#0a0e1a")
+    fig.patch.set_facecolor("#ffffff")
+    ax.set_facecolor("#ffffff")
 
     wedges, texts, autotexts = ax.pie(
         values if sum(values) > 0 else [1, 1],
@@ -131,18 +131,18 @@ def _mpl_pie_chart(labels, values, colors, title, save_path):
         colors=colors,
         autopct="%1.1f%%" if sum(values) > 0 else None,
         startangle=140,
-        wedgeprops=dict(width=0.55, edgecolor="#0a0e1a", linewidth=2),
+        wedgeprops=dict(width=0.55, edgecolor="#ffffff", linewidth=2),
         pctdistance=0.8,
     )
     for t in texts:
-        t.set(color="#94a3b8", fontsize=8)
+        t.set(color="#7f858f", fontsize=8)
     for at in autotexts:
-        at.set(color="#f1f5f9", fontsize=8, fontweight="bold")
+        at.set(color="#ffffff", fontsize=8, fontweight="bold")
 
-    ax.set_title(title, color="#f1f5f9", fontsize=11, fontweight="bold", pad=8)
+    ax.set_title(title, color="#2a2e34", fontsize=11, fontweight="bold", pad=8)
     plt.tight_layout()
     plt.savefig(save_path, dpi=150, bbox_inches="tight",
-                facecolor="#0a0e1a", edgecolor="none")
+                facecolor="#ffffff", edgecolor="none")
     plt.close()
 
 
@@ -406,18 +406,18 @@ def generate_report(period: str = "daily", output_path: str | None = None) -> st
         x = MARGIN
         # Alternate row shading
         if i == 0:
-            pdf.set_fill_color(*C_BG)
-        elif i % 2 == 1:
-            pdf.set_fill_color(20, 30, 50)
-        else:
             pdf.set_fill_color(*C_CARD)
+        elif i % 2 == 1:
+            pdf.set_fill_color(248, 249, 250)
+        else:
+            pdf.set_fill_color(*C_BG)
         pdf.rect(x, pdf.get_y(), INNER_W, row_h, "F")
 
         for j, (cell, cw) in enumerate(zip(row, col_w)):
             pdf.set_xy(x + 2, pdf.get_y())
             if i == 0:
                 pdf.set_font("Helvetica", "B", 8)
-                pdf.set_text_color(*C_PRIMARY)
+                pdf.set_text_color(*C_MUTED)
             elif j == 0:
                 pdf.set_font("Helvetica", "B", 8)
                 pdf.set_text_color(*C_WHITE)
@@ -469,12 +469,12 @@ def generate_report(period: str = "daily", output_path: str | None = None) -> st
 
     # Header row
     x = MARGIN
-    pdf.set_fill_color(*C_BG)
+    pdf.set_fill_color(*C_CARD)
     pdf.rect(x, pdf.get_y(), INNER_W, 7, "F")
     for hdr, cw in zip(log_headers, log_widths):
         pdf.set_xy(x + 1, pdf.get_y())
         pdf.set_font("Helvetica", "B", 7.5)
-        pdf.set_text_color(*C_PRIMARY)
+        pdf.set_text_color(*C_MUTED)
         pdf.cell(cw, 7, hdr)
         x += cw
     pdf.ln(7)
@@ -491,9 +491,9 @@ def generate_report(period: str = "daily", output_path: str | None = None) -> st
             f"{d.get('fps', 0):.1f}",
         ]
         if i % 2 == 0:
-            pdf.set_fill_color(20, 30, 50)
+            pdf.set_fill_color(248, 249, 250)
         else:
-            pdf.set_fill_color(*C_CARD)
+            pdf.set_fill_color(*C_BG)
         pdf.rect(MARGIN, pdf.get_y(), INNER_W, 6, "F")
         for val, cw in zip(row_data, log_widths):
             pdf.set_xy(x + 1, pdf.get_y())

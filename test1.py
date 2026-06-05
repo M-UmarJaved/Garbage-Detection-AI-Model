@@ -3,6 +3,16 @@ from ultralytics import YOLO
 import time
 import threading
 import socket
+import os
+import voice
+
+voice.init()
+
+def is_voice_enabled():
+    if os.path.exists("voice_cfg.txt"):
+        with open("voice_cfg.txt", "r") as f:
+            return f.read().strip() == "1"
+    return True
 
 # =====================================================
 # CONFIGURATION
@@ -14,11 +24,11 @@ CONFIDENCE  = 0.75
 IMAGE_SIZE  = 320
 
 # ESP32-WROOM UDP settings
-WROOM_IP    = "192.168.4.3"
+WROOM_IP    = "192.168.4.2"
 WROOM_PORT  = 1234
 
-DEAD_ZONE_X = 80
-DEAD_ZONE_Y = 80
+DEAD_ZONE_X = 60
+DEAD_ZONE_Y = 60
 
 SOFT_ZONE_X = 120
 HARD_ZONE_X = 180
@@ -39,6 +49,10 @@ CENTER_Y    = FRAME_H // 2
 
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 print(f"✅ UDP socket ready → {WROOM_IP}:{WROOM_PORT}")
+
+# Local IPC socket for Dashboard
+ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+print(f"✅ IPC socket ready → 127.0.0.1:5555 & 5556")
 
 # =====================================================
 # LOAD MODEL
@@ -259,6 +273,8 @@ while True:
                 print(f"[DETECT] {label:<15} conf:{confidence:.2f} "
                       f"pos:({mx:+4d},{my:+4d}) → {cmd:<18} fps:{fps_display}")
                 log_time = time.time()
+                if is_voice_enabled():
+                    voice.speak(label, confidence)
 
     if not object_found:
         cmd = "STOP"
@@ -277,6 +293,16 @@ while True:
 
     cv2.imshow("UDP Fast Tracking", frame)
 
+    # ── IPC BROADCAST TO DASHBOARD (Metadata Only) ──
+    try:
+        import json
+        _conf = best_conf if 'best_conf' in locals() else 0.0
+        _label = label if 'label' in locals() and object_found else ""
+        meta = {"fps": fps_display, "cmd": cmd, "conf": _conf, "label": _label}
+        ipc_socket.sendto(json.dumps(meta).encode(), ('127.0.0.1', 5555))
+    except Exception as e:
+        print(f"IPC Error: {e}")
+
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
@@ -293,4 +319,5 @@ vs.stop()
 udp_socket.sendto(b"STOP", (WROOM_IP, WROOM_PORT))
 udp_socket.close()
 cv2.destroyAllWindows()
-print("✅ Stopped")
+voice.shutdown()
+print("Clean exit.")

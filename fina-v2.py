@@ -183,17 +183,19 @@ def get_direction(center_x: int, frame_width: int) -> str:
 # =====================================================
 
 def draw_zones(frame, width: int, height: int) -> None:
-    cv2.line(frame, (ZONE_FAR_LEFT, 0),  (ZONE_FAR_LEFT, height),  (0, 0, 255), 1)
-    cv2.line(frame, (ZONE_LEFT, 0),      (ZONE_LEFT, height),      (0, 165, 255), 1)
-    cv2.line(frame, (ZONE_CENTER_L, 0),  (ZONE_CENTER_L, height),  (0, 255, 0), 1)
-    cv2.line(frame, (ZONE_CENTER_R, 0),  (ZONE_CENTER_R, height),  (0, 255, 0), 1)
-    cv2.line(frame, (ZONE_RIGHT, 0),     (ZONE_RIGHT, height),     (0, 165, 255), 1)
-    cv2.line(frame, (ZONE_FAR_RIGHT, 0), (ZONE_FAR_RIGHT, height), (0, 0, 255), 1)
-    cv2.putText(frame, "FL",  (5,   15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
-    cv2.putText(frame, "L",   (70,  15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 165, 255), 1)
-    cv2.putText(frame, "CTR", (130, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
-    cv2.putText(frame, "R",   (200, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 165, 255), 1)
-    cv2.putText(frame, "FR",  (265, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+    # ClickUp minimal grey (200,200,200) for outer lines, Green (117,200,0) for center
+    cv2.line(frame, (ZONE_FAR_LEFT, 0),  (ZONE_FAR_LEFT, height),  (200, 200, 200), 1)
+    cv2.line(frame, (ZONE_LEFT, 0),      (ZONE_LEFT, height),      (200, 200, 200), 1)
+    cv2.line(frame, (ZONE_CENTER_L, 0),  (ZONE_CENTER_L, height),  (117, 200, 0), 1)
+    cv2.line(frame, (ZONE_CENTER_R, 0),  (ZONE_CENTER_R, height),  (117, 200, 0), 1)
+    cv2.line(frame, (ZONE_RIGHT, 0),     (ZONE_RIGHT, height),     (200, 200, 200), 1)
+    cv2.line(frame, (ZONE_FAR_RIGHT, 0), (ZONE_FAR_RIGHT, height), (200, 200, 200), 1)
+    
+    cv2.putText(frame, "FL",  (5,   15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+    cv2.putText(frame, "L",   (70,  15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+    cv2.putText(frame, "CTR", (130, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (117, 200, 0), 1)
+    cv2.putText(frame, "R",   (200, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
+    cv2.putText(frame, "FR",  (265, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
 
 # =====================================================
 # MAIN DETECTION LOOP
@@ -208,8 +210,8 @@ while True:
     height, width  = frame.shape[:2]
     zone_height    = int(height * 0.6)
 
-    # Draw detection zone boundary
-    cv2.rectangle(frame, (0, 0), (width, zone_height), (255, 0, 0), 2)
+    # Draw detection zone boundary (ClickUp Blue)
+    cv2.rectangle(frame, (0, 0), (width, zone_height), (192, 101, 21), 2)
 
     # Draw zone dividers
     draw_zones(frame, width, height)
@@ -267,27 +269,27 @@ while True:
                 voice.speak(label, confidence)
 
                 # ── Draw detection visuals ───────────
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (117, 200, 0), 2)
 
                 # Label background
                 cv2.rectangle(frame,
                                (x1, y1 - 25), (x1 + 160, y1),
-                               (0, 255, 0), -1)
+                               (255, 255, 255), -1)
                 cv2.putText(frame,
                             f"{label} {confidence:.2f}",
                             (x1, y1 - 7),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
                 # Center dot
-                cv2.circle(frame, (center_x, center_y), 6, (0, 0, 255), -1)
+                cv2.circle(frame, (center_x, center_y), 6, (238, 104, 123), -1)
 
                 # Direction label on frame
                 dir_color = {
-                    "TURN_LEFT_FAST":  (0, 0, 255),
-                    "TURN_LEFT":       (0, 165, 255),
-                    "CENTER":          (0, 255, 0),
-                    "TURN_RIGHT":      (0, 165, 255),
-                    "TURN_RIGHT_FAST": (0, 0, 255),
+                    "TURN_LEFT_FAST":  (238, 104, 123), # Purple
+                    "TURN_LEFT":       (192, 101, 21),  # Blue
+                    "CENTER":          (117, 200, 0),   # Green
+                    "TURN_RIGHT":      (192, 101, 21),  # Blue
+                    "TURN_RIGHT_FAST": (238, 104, 123), # Purple
                 }.get(direction, (255, 255, 255))
 
                 cv2.putText(frame,
@@ -316,11 +318,11 @@ while True:
     # FPS
     cv2.putText(frame, f"FPS: {int(fps_display)}",
                 (10, height - 80),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
 
     # Motor status
     motor_status = "CONNECTED"  if arduino else "DISCONNECTED"
-    motor_color  = (0, 255, 0) if arduino else (0, 0, 255)
+    motor_color  = (117, 200, 0) if arduino else (70, 61, 232)
     cv2.putText(frame, f"Motors: {motor_status}",
                 (10, height - 50),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, motor_color, 2)
@@ -328,19 +330,19 @@ while True:
     # Last command
     cv2.putText(frame, f"CMD: {last_command}",
                 (10, height - 20),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (192, 101, 21), 2)
 
     # Detections logged counter (top-right)
     cv2.putText(frame, f"Logged: {total_logged}",
                 (width - 140, 40),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 200, 255), 2)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (238, 104, 123), 2)
 
     # Bin fill levels (top-right)
     fill_info = fill_server.get_latest()
     cv2.putText(frame,
                 f"Bin P:{fill_info['plastic_pct']:.0f}% Pa:{fill_info['paper_pct']:.0f}%",
                 (width - 200, 60),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 200, 255), 1)
+                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1)
 
     cv2.imshow("GarbAI - Full Feature System", frame)
 
