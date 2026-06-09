@@ -1,0 +1,510 @@
+Submitted
+To:
+Submitted
+To:
+  Ma’am Fiza Khalid
+Submitted By: 
+                        Muhammad Umar Javed
+   (
+2024-CS-190)
+                        Muhammad Husnain      
+   (
+2024-CS-221)
+                       Sunil Romi                      
+   (
+2024-CS-55)
+  Course: 
+                           Artificial Intelligence Lab (CSC- 202L)
+Project Title: 
+AI-Powered Autonomous Waste Catching System
+  DEPARTMENT OF COMPUTER SCIENCE  
+Table of Contents
+1. Introduction ........................................................ 3
+    1.1 Introduction
+    1.2 Problem Statement
+    1.3 Objectives
+    1.4 Scope
+2. Dataset Creation – From ESP32-CAM to Labelled Images .... 4
+    2.1 Image Capture
+    2.2 Annotation and Dataset Management with 
+Roboflow
+3. Model Architecture ................................................. 5
+    3.1 Why YOLO (You Only Look Once)
+    3.2 YOLOv5 Architecture Details
+4. Training Process ..................................................... 6
+    4.1 Training Configuration
+    4.2 Loss Function and Metrics
+    4.3 Training Techniques
+5. System Implementation ............................................... 8
+    5.1 Technology Stack
+    5.2 Inference Pipeline – Real-Time Detection
+    5.3 Quadrant-Based Motor Command Logic
+6. Integration with Hardware ........................................... 9
+    6.1 Serial Communication
+    6.2 Motor Control on ESP32 WROOM
+7. Testing and Evaluation .............................................. 10
+8. Results and Discussion .............................................. 11
+9. Limitations ......................................................... 12
+10. Future Enhancements ................................................. 13
+11. Conclusion .......................................................... 14
+References ............................................................. 15
+1. INTRODUCTION
+1.1 Introduction
+Artificial Intelligence has 
+revolutionised
+ how machines perceive and interact with the physical world. One of the most impactful branches of AI is Computer Vision, which enables systems to understand and respond to visual information in real time. This project leverages deep learning-based object detection to solve a common but overlooked problem in educational environments: missed garbage throws in lecture theatres.
+The Smart Garbage Basket Project combines an embedded vision system with a 
+motorised
+ basket that autonomously repositions itself to catch thrown trash. The AI subsystem forms the intelligence at the heart of this system, detecting garbage objects in real time and directing the basket to the correct position.
+1.2 Problem Statement
+In lecture theatres, students frequently throw trash (paper balls, plastic bottles, empty wrappers) toward a fixed bin but miss, resulting in litter on the floor. Traditional fixed bins cannot react to the trajectory of 
+thrown objects
+. Our solution uses computer vision and a custom-trained object detection model to identify falling garbage in real time, calculate its position relative to the basket, and send movement commands to a 
+motorised
+ basket so that it moves under the trash and catches it.
+1.3 Objectives
+The primary objectives of the AI component are:
+Capture live video from an ESP32-CAM module mounted on the basket frame.
+Detect specific types of garbage (plastic bottle, crushed paper ball) in each video frame using a custom-trained deep learning model.
+Locate the detected object’s 
+centre
+ coordinates within the camera frame.
+Map the object’s position to a movement command (forward, backward, left, right, diagonal) that is sent to the motor controller.
+Achieve real-time performance with end-to-end latency below 120 
+ms.
+Operate entirely offline — no internet connection required after training.
+1.4 Scope
+The AI system focuses on:
+Real-time garbage object detection and 
+localisation
+.
+Offline inference on a standard laptop (no cloud GPU).
+Serial communication of motor commands to the ESP32 WROOM microcontroller.
+The project does not include:
+Cloud deployment or remote monitoring.
+Detection of more than two garbage categories in the current iteration.
+Autonomous navigation beyond the quadrant-based directional system.
+2. DATASET CREATION – FROM ESP32-CAM TO LABELLED IMAGES
+2.1 Image Capture
+We used the ESP32-CAM module (with OV2640 sensor) to capture images of our target garbage objects. The camera was mounted on the basket frame, and we wrote a Python script that accessed the camera’s /capture endpoint to download JPEG images directly to the laptop. We collected 300–400 images for each object class under various conditions to ensure robust 
+generalisation
+:
+Condition
+Details
+Viewing Angles
+Top-down, side-on, isometric
+Lighting Conditions
+Classroom fluorescent, dim, bright direct
+Backgrounds
+Floor, desk surface, near the basket rim
+Object Variants
+Full plastic bottle, crushed bottle, small / large paper balls
+This diversity ensured that the model would 
+generalise
+ well to real-world scenarios in the lecture theatre without overfitting to a narrow set of conditions.
+2.2 Annotation and Dataset Management with 
+Roboflow
+All raw images were uploaded to 
+Roboflow
+, an online platform for computer vision datasets. Every image was manually annotated by drawing bounding boxes around each object and assigning the corresponding label (bottle or paper). After annotation, 
+Roboflow
+ was used to:
+Resize all images to a uniform 320×320 pixels for efficient training.
+Apply augmentations (random rotation, brightness adjustment, flipping, mosaic) to artificially increase dataset size and improve robustness.
+Split the dataset into 70% training, 15% validation, and 15% testing using stratified sampling so each class is proportionally represented in every split.
+The final dataset was exported in YOLOv5 format, compatible with the 
+Ultralytics
+ YOLO library.
+3. MODEL ARCHITECTURE
+3.1 Why YOLO (You Only Look Once)
+We chose YOLO because it is a single-stage detector that predicts bounding boxes and class probabilities directly from full images in a single forward pass. This makes it extremely fast — a critical requirement for a basket that must react within milliseconds to a falling object. YOLOv5
+, in particular, is
+ well-documented, straightforward to fine-tune, and runs efficiently on a CPU or modest GPU, making it ideal for a student project budget.
+3.2 YOLOv5 Architecture Details
+YOLOv5s (small variant) was selected as the base model, balancing inference speed and detection accuracy. The architecture consists of:
+Component
+Description
+Backbone
+CSPDarknet
+ — extracts multi-scale feature maps from the input image
+Neck
+PANet (Path Aggregation 
+Network) —
+ fuses features across scales
+Head
+Detection head predicting bounding boxes, 
+objectness
+ score, and class probabilities
+Input Size
+320×320 pixels (matching ESP32-CAM stream resolution)
+Output Classes
+bottle, paper (2 custom classes)
+Base Weights
+yolov5s.pt (pre-trained on COCO, fine-tuned on our custom dataset)
+4. TRAINING PROCESS
+4.1 Training Configuration
+Training was performed locally on a laptop using the 
+Ultralytics
+ YOLOv5 repository. No cloud GPU was required. The training command used was:
+python train.py --data 
+dataset.yaml
+ --weights yolov5s.pt --epochs 100 --
+img
+ 320 --batch 16
+Parameter
+Value
+Base Model
+yolov5s.pt (small variant)
+Number of Epochs
+100
+Batch Size
+16
+Image Size
+320×320 pixels
+Optimiser
+Adam
+Data Augmentation
+Roboflow
+ augmentations + YOLO built-in augmentations
+4.2 Loss Function and Performance Metrics
+During training, three loss components were monitored:
+Box Loss (bounding box 
+localisation
+) —
+ decreased steadily, indicating the model learned accurate box placement.
+Class Loss (object 
+classification) —
+ converged to a low value, showing clear separation between bottle and paper classes.
+Objectness
+ Loss (confidence that an object 
+exists) —
+ declined consistently, confirming the model’s detection 
+certainty
+.
+The loss curves showed stable convergence without overfitting, validating that the training hyperparameters were well chosen.
+4.2.1 Overall Validation Set Performance (After 100 Epochs)
+Metric
+Value
+Interpretation
+mAP@50
+82.1%
+Correct 
+localisation
+ & classification in ~8 of 10 cases
+Precision
+77.8%
+~3 of every 4 detections are genuine garbage objects
+Recall
+85.8%
+Model catches more than 8 of 10 real trash items
+F1-Score
+81.6%
+Balanced measure of precision and recall
+4.2.2 Per-Class Performance (mAP@50 on Held-Out Test Set)
+Class
+mAP@50
+Notes
+bottle
+77.0%
+Reliable detection; minor confusion with cylindrical objects
+paper (crushed)
+87.0%
+Higher accuracy due to distinctive texture and irregular shape
+Overall (all classes)
+82.0%
+Strong 
+generalisation
+ across both categories
+The paper class achieved higher accuracy (87.0%) because crumpled paper has a distinctive texture and highly irregular shape that the model can distinguish reliably. Bottles (77.0%) are still detected with good reliability, though occasional confusion with other cylindrical objects may occur in cluttered scenes.
+4.3 Training Techniques
+Several 
+regularisation
+ and augmentation strategies were applied to 
+maximise
+generalisation
+:
+Roboflow
+ Augmentations: Random rotation, brightness and contrast adjustment, horizontal flip, and mosaic composition were applied during dataset preparation.
+YOLO Built-in Augmentations: Mosaic, copy-paste, HSV shifts, and geometric transforms applied on-the-fly during training.
+Early Stopping: Training was monitored for validation 
+mAP
+ plateau to prevent unnecessary computation.
+Best Weights Checkpointing: The model checkpoint with the highest validation 
+mAP
+ was saved as best.pt for inference deployment.
+5. SYSTEM IMPLEMENTATION
+5.1 Technology Stack
+Component
+Technology
+Object Detection Model
+YOLOv5s (
+Ultralytics
+)
+Training Framework
+PyTorch
+Dataset Management
+Roboflow
+Inference Script
+Python 3 + OpenCV
+Camera Module
+ESP32-CAM (OV2640 sensor)
+Motor Controller
+ESP32 WROOM + L298N Driver
+Communication
+USB Serial (115200 baud)
+Video Capture
+Multi-threaded OpenCV 
+VideoCapture
+5.2 Inference Pipeline – Real-Time Detection on Live Video
+The ESP32-CAM operates in Access Point (AP) mode, creating its own Wi-Fi network (ESP32-GARBAGE). It streams MJPEG video at http://192.168.4.1:81/stream. A Python script running on the laptop connects to this stream and processes each frame.
+To eliminate the 2–3 second latency typical of OpenCV’s default 
+VideoCapture
+, a separate thread continuously reads frames into a buffer. The main loop always grabs the latest available frame, discarding stale ones. This ensures detection runs on the most recent image — critical for catching fast-falling objects.
+For every frame, inference is run using the loaded model:
+results = 
+model(
+frame, conf=0.7, 
+imgsz
+=320, verbose=False)
+The confidence threshold was set to 0.7 to balance precision (
+minimise
+ false positives) and recall (catch all trash). The model returns bounding boxes, class labels, and confidence scores for each detected object.
+5.3 Quadrant-Based Motor Command Logic
+Once an object is detected in the upper half of the frame (the “falling zone”), its 
+centre
+ coordinates (cx, cy) are computed and compared to the frame 
+centre
+ (CENTER_X, CENTER_Y). The displacement (dx = cx − CENTER_X, 
+dy
+ = CENTER_Y − cy) defines the object’s position in a 2D coordinate system relative to the basket’s viewpoint. Nine movement commands are defined with a 15-pixel dead zone near the 
+centre
+:
+Condition
+Command
+Effect on Basket
+|dx|<15 and |
+dy
+|<15
+STOP
+No movement — object is 
+centred
+dy
+ > 0, |dx| < 15
+FORWARD
+Move straight forward
+dy
+ < 0, |dx| < 15
+BACKWARD
+Move straight backward
+dx > 0, |
+dy
+| < 15
+RIGHT
+Turn right
+dx < 0, |
+dy
+| < 15
+LEFT
+Turn left
+dx > 0, 
+dy
+ > 0
+FWD_RIGHT
+Forward + right diagonal
+dx < 0, 
+dy
+ > 0
+FWD_LEFT
+Forward + left diagonal
+dx < 0, 
+dy
+ < 0
+BWD_LEFT
+Backward + left diagonal
+dx > 0, 
+dy
+ < 0
+BWD_RIGHT
+Backward + right diagonal
+Commands are sent as text strings (e.g., "FWD_RIGHT\n") over the serial port (USB) to the ESP32 WROOM motor controller.
+6. INTEGRATION WITH HARDWARE
+6.1 Serial Communication
+The Python inference script opens a serial connection to the ESP32 WROOM (e.g., COM9 at 115200 baud). Every time a detection occurs in the falling zone, the appropriate command is sent as a line of text. The ESP32 WROOM continuously reads this serial data and activates the L298N motor 
+driver
+ accordingly, enabling closed-loop visual guidance without any wireless latency.
+6.2 Motor Control on ESP32 WROOM
+The ESP32 WROOM firmware defines functions for each movement command. For example, 
+doFwdRight
+(
+) sets the left motor to a higher speed than the right motor, producing a forward-diagonal movement. Motor speeds are 
+parameterised
+ via SPEED_FULL, SPEED_TURN, and SPEED_DIAG for easy tuning. Two IR obstacle sensors (front and back) are read continuously; if an obstruction is detected, the motors stop immediately to prevent collisions.
+6.3 Real-Time Performance
+With multi-threaded video capture and the lightweight YOLOv5s model, the system achieves 15–25 frames per second on a standard laptop. The end-to-end latency from an object entering the camera’s view to the basket starting to move is approximately 80–120 
+ms
+ — fast enough to respond to a paper ball thrown from 2–3 
+metres
+.
+7. TESTING AND EVALUATION
+Test Cases
+Test Case
+Expected Result
+Outcome
+Camera 
+stream
+ connect
+MJPEG stream received at 192.168.4.1:81/stream
+Pass
+Single bottle detection
+Bounding box with ‘bottle’ label and conf ≥ 0.70
+Pass
+Single paper ball detection
+Bounding box with ‘paper’ label and conf ≥ 0.70
+Pass
+Centred
+ object
+STOP command sent; basket does not move
+Pass
+Object displaced right
+RIGHT or FWD_RIGHT command sent
+Pass
+Object displaced forward
+FORWARD command sent
+Pass
+Diagonal displacement
+Correct diagonal command sent
+Pass
+Serial command delivery
+ESP32 WROOM activates correct motors
+Pass
+IR obstacle triggered
+Motors stop regardless of detection
+Pass
+No object in frame
+No command sent; basket remains stationary
+Pass
+Validation Checklist
+Model weights (best.pt) load successfully on inference startup.
+Threaded video capture eliminates frame lag.
+Confidence threshold of 0.70 filters false positives while maintaining high recall.
+Quadrant mapping correctly identifies all nine movement zones.
+Serial port opens reliably; retry logic handles ‘Access Denied’ errors.
+IR sensors override AI commands when an obstacle is present.
+8. RESULTS AND DISCUSSION
+The custom-trained YOLOv5s model reliably detected bottles and crushed paper balls under classroom lighting conditions. The system achieved stable, real-time performance throughout all test sessions.
+8.1 Quantitative Metrics Summary
+Metric
+Value
+Overall mAP@50 (Validation Set)
+82.1%
+mAP@50 — bottle (Test Set)
+77.0%
+mAP@50 — paper (Test Set)
+87.0%
+mAP@50 — all classes (Test Set)
+82.0%
+Precision
+77.8%
+Recall
+85.8%
+F1-Score
+81.6%
+Inference Frame Rate
+15–25 FPS
+End-to-End Latency
+80–120 
+ms
+8.2 Training Loss Convergence
+All three loss components (box loss, class loss, 
+objectness
+ loss) decreased smoothly over 100 epochs without oscillation or divergence. The absence of a widening gap between training and validation loss confirms that the model 
+generalises
+ well and did not 
+overfit to
+ the training set. The convergence pattern validates the choice of hyperparameters — specifically the 320×320 input size, batch size of 16, and Adam 
+optimiser
+.
+8.3 Qualitative Observations
+The basket moved smoothly to align with the falling object’s position and successfully caught thrown items during live demonstrations.
+The system operated completely offline — no internet connection was required after the initial dataset upload and training phase.
+The entire AI pipeline (capture → detect → decide → command) completed within under 0.1 second per cycle.
+Detection confidence consistently exceeded 0.80 for 
+centred
+, well-lit objects.
+Minor false positives occurred with cylindrical containers similar in shape to the target bottle class; additional training data could mitigate this.
+9. CHALLENGES AND SOLUTIONS
+Challenge
+Solution Implemented
+High latency in OpenCV frame capture
+Implemented a separate background thread to always read the latest frame, discarding stale ones.
+Green tint / corrupted images at QVGA resolution
+Switched to FRAMESIZE_HVGA (480×320) and later FRAMESIZE_VGA (640×480) with proper JPEG quality settings on the ESP32-CAM.
+Motor not responding to diagonal commands
+Tuned differential steering speeds and reduced dead zone to 15 pixels. Added debug prints to verify quadrant mapping logic.
+Serial port ‘Access Denied’ error
+Closed Arduino IDE Serial Monitor; implemented retry logic and proper port-release handling in the Python script.
+Model confusion between similar objects
+Collected more diverse training images under varied conditions and applied stronger 
+Roboflow
+ augmentations.
+Low recall for small paper balls at distance
+Lowered confidence threshold from 0.8 to 0.7 after evaluating the precision–recall trade-off on the validation set.
+10. LIMITATIONS
+The system’s detection performance degrades in very dim or harshly shadowed environments, as the model was primarily trained under classroom fluorescent lighting.
+The quadrant-based control logic assumes the camera is always aligned with the basket frame; any mechanical misalignment degrades directional accuracy.
+Detection is limited to two object classes (bottle, paper). Other types of trash (cans, food wrappers, etc.) are not 
+recognised
+ in the current iteration.
+The basket operates within a small physical footprint; large displacement throws may move faster than the basket can travel.
+The system requires a laptop running the inference script; a more compact embedded solution (e.g., Raspberry Pi) would be more practical for real deployment.
+11. FUTURE ENHANCEMENTS
+Expand the training 
+dataset
+ to cover additional garbage classes (cans, food wrappers, paper cups) for broader real-world applicability.
+Port the inference pipeline to a Raspberry Pi 4 or Jetson Nano to eliminate the dependency on an external laptop.
+Integrate trajectory prediction (e.g., Kalman filter) to anticipate the landing position of thrown objects and pre-position the basket.
+Export the model to ONNX or 
+TensorRT
+ format for accelerated edge inference.
+Implement a multi-camera setup for improved spatial awareness and longer detection range.
+Add a user feedback loop: a buzzer or LED indicator to signal successful or missed catches, enabling continuous data collection for model improvement.
+12. CONCLUSION
+This project successfully developed and deployed an end-to-end AI pipeline for the Smart Garbage Basket system. Starting from raw image collection with an ESP32-CAM, we built a custom labelled dataset, trained a YOLOv5s object detection model achieving 82.1% mAP@50, and integrated the model into a real-time inference system that drives a 
+motorised
+ basket autonomously.
+The training metrics and loss curves validate the model’s performance: stable convergence, high recall (85.8%), and acceptable precision (77.8%). Per-class analysis showed 87.0% mAP@50 for crumpled paper and 77.0% for plastic bottles on a held-out test set. The quadrant-based motor command logic translates pixel-space detections into physical movements with end-to-end latency below 120 
+ms.
+The project demonstrates a complete AI pipeline spanning data acquisition, annotation, model training, real-time inference, and physical actuation — all within the constraints of a student project budget and timeline. It 
+showcases
+ the practical intersection of embedded vision, deep learning, and intelligent robotics, providing a meaningful solution to a real-world problem in educational environments.
+REFERENCES
+Redmon, J., 
+Divvala
+, S., 
+Girshick
+, R., & Farhadi, A. (2016). You Only Look Once: Unified, Real-Time Object Detection. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 779–788.
+Jocher, G. et al. (2020). 
+ultralytics
+/yolov5: v5.0 — YOLOv5-P6 1280 models, AWS, Supervise.ly and YouTube integrations. 
+Zenodo
+. https://doi.org/10.5281/zenodo.4154370
+Wang, C.-Y., Liao, H.-Y. M., Wu, Y.-H., Chen, P.-Y., Hsieh, J.-W., & Yeh, I.-H. (2020). 
+CSPNet
+: A New Backbone that can Enhance Learning Capability of CNN. Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops.
+Roboflow
+. (2023). 
+Roboflow
+: Give your software the sense of sight. https://roboflow.com
+Espressif
+ Systems. (2023). ESP32-CAM Getting Started Guide. 
+Espressif
+ Systems Official Documentation.
+Ultralytics
+. (2023). YOLOv5 Documentation. https://docs.ultralytics.com
+PyTorch
+. (2023). 
+PyTorch
+ Documentation. https://pytorch.org/docs
+OpenCV. (2023). 
+Open Source
+ Computer Vision Library. https://opencv.org
